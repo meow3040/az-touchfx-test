@@ -1,0 +1,80 @@
+name: Verify complete Touch FX build
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/verify-touchfx-bundle.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: Kyle-Hosman/az-mods-sdk
+          ref: 3dcaf8f7331ea94135d7161f653edfaf906d5ea6
+          path: .azmod-sdk
+          persist-credentials: false
+
+      - name: Build the documented core toolchain
+        run: docker build --platform linux/arm64 -f core/docker/azmod-build.Dockerfile -t touchfx-core:18.04 core
+
+      - name: Obtain and verify the official asset donor
+        run: |
+          mkdir -p work
+          curl --fail --location --retry 3 \
+            https://github.com/Kyle-Hosman/az-mods-updates/releases/download/mods-v1.2.5/mods-v1.2.5.tar.gz \
+            -o work/official.tar.gz
+          printf '%s\n' '955be31b80e8e8d702e04a3703e36e4a231ec635e46b378db1b7cf48ae2cf126  work/official.tar.gz' | sha256sum --check
+          python3 - <<'PY'
+          import pathlib, tarfile
+          with tarfile.open('work/official.tar.gz', 'r:gz') as archive:
+              matches = [m for m in archive.getmembers() if m.isfile() and pathlib.PurePosixPath(m.name).name == 'azmod.so']
+              if len(matches) != 1 or matches[0].size > 16 * 1024 * 1024:
+                  raise SystemExit('Expected one official azmod.so, at most 16 MB')
+              pathlib.Path('work/official-azmod.so').write_bytes(archive.extractfile(matches[0]).read())
+          PY
+          python3 core/tools/extract-assets.py work/official-azmod.so
+
+      - name: Build all three components using the original script
+        run: |
+          docker run --rm --platform linux/arm64 \
+            -v "$PWD:/workspace" -w /workspace \
+            -e AZ_SDK_INCLUDE=/workspace/.azmod-sdk/include \
+            touchfx-core:18.04 sh build-all.sh
+
+      - name: Verify exact reproduction of the author's tested bundle
+        run: |
+          python3 - <<'PY'
+          import hashlib, json, pathlib, sys
+          expected = json.loads(pathlib.Path('VERIFICATION.json').read_text())['sha256']
+          paths = ['core/src/out/azmod.so', 'audio/out/azstem.so', 'panel/out/mrdjjag-touchfx-test.so']
+          result = {}
+          for name in paths:
+              path = pathlib.Path(name)
+              actual = hashlib.sha256(path.read_bytes()).hexdigest()
+              match = actual == expected[path.name]
+              result[path.name] = {'actual': actual, 'expected': expected[path.name], 'match': match}
+              print(('MATCH' if match else 'DIFFERENT') + ' ' + path.name + ' ' + actual)
+          pathlib.Path('build-verification.json').write_text(json.dumps(result, indent=2) + '\n')
+          if not all(item['match'] for item in result.values()):
+              sys.exit('The fresh build is not byte-identical to the tested bundle. Do not treat it as verified for installation.')
+          PY
+          python3 .azmod-sdk/tools/azmod-pack validate panel
+
+      - name: Save verification results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: touchfx-complete-build-verification
+          path: build-verification.json
+          if-no-files-found: warn
+          retention-days: 14
+
