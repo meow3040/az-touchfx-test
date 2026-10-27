@@ -1,4 +1,5 @@
 name: Build and publish Touch FX panel
+run-name: Touch FX panel on ${{ github.ref_name }} (run ${{ github.run_number }})
 
 on:
   push:

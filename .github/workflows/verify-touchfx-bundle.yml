@@ -1,4 +1,5 @@
 name: Verify complete Touch FX build
+run-name: Touch FX complete build on ${{ github.ref_name }} (run ${{ github.run_number }})
 
 on:
   push:
