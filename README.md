@@ -1,5 +1,21 @@
 # Touch FX for XDJ-AZ
 
+## AZ-MODS repository status
+
+This repository currently publishes **source code only**. Its `azmods-repo.json`
+is a valid repository index with an empty `mods` list. Adding
+`meow3040/az-touchfx-test` in AZ-MODS therefore finds the repository, but there
+are currently **no installable mods in Browse** and no `.azmod` release to download.
+
+Touch FX 0.8.0 needs three matching components: the panel, a custom `azmod.so`,
+and a custom `azstem.so`. A panel package alone cannot provide the required core
+and audio capabilities. For the manual source-build route, see [BUILD.md](BUILD.md),
+[INSTALL.md](INSTALL.md), and [RESTORE.md](RESTORE.md). The original author's build
+verification is recorded in [VERIFICATION.json](VERIFICATION.json); this mirror
+has not built or hardware-tested a new bundle.
+
+## Features
+
 Touch-controlled STEMS and Drum Roll effects with automatic mixer following,
 separate panel memory for each deck and adaptive 2, 2/4 and 4-deck layouts.
 
