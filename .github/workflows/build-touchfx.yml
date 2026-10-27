@@ -1,0 +1,82 @@
+name: Build Touch FX panel
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'panel/**'
+      - '.github/workflows/build-touchfx.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: touchfx-panel-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check out the SDK recorded in PROVENANCE.json
+        uses: actions/checkout@v4
+        with:
+          repository: Kyle-Hosman/az-mods-sdk
+          ref: 3dcaf8f7331ea94135d7161f653edfaf906d5ea6
+          path: .azmod-sdk
+          persist-credentials: false
+
+      - name: Build the pinned ARM64 SDK toolchain
+        run: python3 .azmod-sdk/tools/azmod-pack image
+
+      - name: Run the existing panel regression tests
+        run: |
+          docker run --rm --platform linux/arm64 \
+            -v "$PWD/panel:/mod" \
+            -v "$PWD/.azmod-sdk/include:/sdk/include:ro" \
+            az-mods-sdk:1 sh -eu -c '
+              mkdir -p out/tests
+              for source in test-geometry.c test-glass-mask.c test-panel.c native/test-native-labels.c native/test-integrated.c; do
+                name=$(basename "$source" .c)
+                gcc -O2 -I/sdk/include "$source" -o "out/tests/$name" -lm -ldl -pthread
+                "out/tests/$name"
+              done
+            '
+
+      - name: Build and validate the panel library
+        run: python3 .azmod-sdk/tools/azmod-pack build panel
+
+      - name: Package the panel for the matching custom core
+        run: |
+          python3 .azmod-sdk/tools/azmod-pack package panel --out dist \
+            --github "$GITHUB_REPOSITORY" --tag mrdjjag-touchfx-test-0.8.0
+          cp INSTALL.md RESTORE.md BUILD.md VERIFICATION.json dist/
+          printf '%s\n' \
+            'This is the Touch FX panel only, not a complete installation.' \
+            'It requires matching custom azmod.so and azstem.so libraries.' \
+            'The standard AZ-MODS core does not provide the required custom APIs.' \
+            'Read INSTALL.md and BUILD.md before installing. No hardware validation was performed by this workflow.' \
+            > dist/REQUIRES-CUSTOM-CORE.txt
+          sha256sum dist/*.azmod > dist/SHA256SUMS
+
+      - name: Save the validated package and installation requirements
+        uses: actions/upload-artifact@v4
+        with:
+          name: touchfx-0.8.0-panel-requires-custom-core
+          path: dist/
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Explain the result
+        run: |
+          printf '%s\n' \
+            '## Touch FX panel build' \
+            'The five existing panel test programs and SDK package validation passed.' \
+            'The artifact contains the panel package only. Matching custom core/audio libraries remain required.' \
+            'This workflow does not publish a Community Mods index entry or install anything on a player.' \
+            >> "$GITHUB_STEP_SUMMARY"
+
