@@ -1,4 +1,4 @@
-name: Build Touch FX panel
+name: Build and publish Touch FX panel
 
 on:
   push:
@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: touchfx-panel-${{ github.ref }}
@@ -52,8 +52,10 @@ jobs:
 
       - name: Package the panel for the matching custom core
         run: |
+          tag=$(python3 -c 'import json; m=json.load(open("panel/azmod.json")); print(m["id"] + "-" + m["version"])')
+          printf 'RELEASE_TAG=%s\n' "$tag" >> "$GITHUB_ENV"
           python3 .azmod-sdk/tools/azmod-pack package panel --out dist \
-            --github "$GITHUB_REPOSITORY" --tag mrdjjag-touchfx-test-0.8.0
+            --github "$GITHUB_REPOSITORY" --tag "$tag"
           cp INSTALL.md RESTORE.md BUILD.md VERIFICATION.json dist/
           printf '%s\n' \
             'This is the Touch FX panel only, not a complete installation.' \
@@ -62,6 +64,39 @@ jobs:
             'Read INSTALL.md and BUILD.md before installing. No hardware validation was performed by this workflow.' \
             > dist/REQUIRES-CUSTOM-CORE.txt
           sha256sum dist/*.azmod > dist/SHA256SUMS
+
+      - name: Publish the tested panel as a prerelease
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "$RELEASE_TAG" > /dev/null 2>&1; then
+            mkdir -p work/published
+            gh release download "$RELEASE_TAG" --pattern '*.azmod' --dir work/published
+            cmp "dist/$RELEASE_TAG.azmod" "work/published/$RELEASE_TAG.azmod" || {
+              echo '::error::This version is already published with different bytes. Bump panel/azmod.json version.'
+              exit 1
+            }
+          else
+            gh release create "$RELEASE_TAG" \
+              "dist/$RELEASE_TAG.azmod" "dist/$RELEASE_TAG-icon.png" \
+              dist/SHA256SUMS dist/REQUIRES-CUSTOM-CORE.txt \
+              --target "$GITHUB_SHA" --prerelease \
+              --title 'Touch FX 0.8.0 - custom core required' \
+              --notes-file PACKAGE-RELEASE.md
+          fi
+
+      - name: Verify public downloads and publish the Browse entry
+        run: |
+          git pull --ff-only origin main
+          python3 .azmod-sdk/tools/azmod-pack repo add azmods-repo.json "dist/$RELEASE_TAG.entry.json"
+          python3 .azmod-sdk/tools/azmod-pack repo check azmods-repo.json --download
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add azmods-repo.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Publish $RELEASE_TAG to AZ-MODS Browse (custom core required)"
+            git push origin HEAD:main
+          fi
 
       - name: Save the validated package and installation requirements
         uses: actions/upload-artifact@v4
@@ -77,6 +112,5 @@ jobs:
             '## Touch FX panel build' \
             'The five existing panel test programs and SDK package validation passed.' \
             'The artifact contains the panel package only. Matching custom core/audio libraries remain required.' \
-            'This workflow does not publish a Community Mods index entry or install anything on a player.' \
+            'The prerelease and Browse entry explicitly require the custom core/audio. Nothing was installed on a player.' \
             >> "$GITHUB_STEP_SUMMARY"
-

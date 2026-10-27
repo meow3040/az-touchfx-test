@@ -2,17 +2,22 @@
 
 ## AZ-MODS repository status
 
-This repository currently publishes **source code only**. Its `azmods-repo.json`
-is a valid repository index with an empty `mods` list. Adding
-`meow3040/az-touchfx-test` in AZ-MODS therefore finds the repository, but there
-are currently **no installable mods in Browse** and no `.azmod` release to download.
+The build workflow publishes **Touch FX (Custom Core)** as a beta panel package
+after its regression tests and SDK validation pass. Its Browse entry is added
+only after the public release downloads pass the SDK's size, hash and package
+checks. Add `meow3040/az-touchfx-test` in AZ-MODS and refresh Browse.
 
-Touch FX 0.8.0 needs three matching components: the panel, a custom `azmod.so`,
-and a custom `azstem.so`. A panel package alone cannot provide the required core
-and audio capabilities. For the manual source-build route, see [BUILD.md](BUILD.md),
-[INSTALL.md](INSTALL.md), and [RESTORE.md](RESTORE.md). The original author's build
-verification is recorded in [VERIFICATION.json](VERIFICATION.json); this mirror
-has not built or hardware-tested a new bundle.
+**The package requires matching custom `azmod.so` and `azstem.so` libraries. It
+does not run on the standard AZ-MODS core or install those libraries.** Touch FX
+0.8.0 needs all three matching components on firmware `ep147-9e9454e357389ece`.
+See [PACKAGE-RELEASE.md](PACKAGE-RELEASE.md), [BUILD.md](BUILD.md),
+[INSTALL.md](INSTALL.md), and [RESTORE.md](RESTORE.md).
+
+GitHub Actions passed all five existing panel test programs and SDK package
+validation. A separate fresh build reproduced all three library hashes in the
+original author's [VERIFICATION.json](VERIFICATION.json). This mirror has not
+tested the package on hardware. Core/audio binaries and extracted firmware
+resources are not distributed here.
 
 ## Features
 
@@ -42,9 +47,12 @@ custom build, not an official AZ-MODS release.
 
 ## Status
 
-Version 0.8.0: working player test build. All three binaries reproduce from the cleaned source with the tested local
-toolchain (see VERIFICATION.json). Public binary distribution remains under review. This source draft does not advertise a normal
-one-click Community Mod installation. See INSTALL.md, RESTORE.md and BUILD.md.
+Version 0.8.0 was tested on the original author's player. All three binaries
+reproduce from the cleaned source with the pinned toolchain (see
+VERIFICATION.json). This mirror publishes the panel as a beta package for
+players that already have the matching custom core and audio libraries.
+Those libraries are not distributed here. See INSTALL.md, RESTORE.md and
+BUILD.md before installation.
 
 ## Feedback
 
@@ -56,3 +64,4 @@ LATCH state and steps to reproduce. A short video is useful for visual issues.
 Touch FX by mrdjjag, built on Kyle Hosman's AZ-MODS and SDK.
 GPL-3.0-only; upstream and third-party notices are retained in NOTICE and source.
 Not affiliated with AlphaTheta or Pioneer DJ.
+
