@@ -3,5 +3,28 @@
   "name": "Touch FX (source-build beta)",
   "maintainer": "meow3040",
   "homepage": "https://github.com/meow3040/az-touchfx-test",
-  "mods": []
+  "mods": [
+    {
+      "id": "mrdjjag-touchfx-test",
+      "name": "Touch FX (Custom Core)",
+      "version": "0.8.0",
+      "author": "mrdjjag",
+      "summary": "Panel only. Requires matching custom azmod.so and azstem.so; standard AZ-MODS is not supported.",
+      "icon": "https://github.com/meow3040/az-touchfx-test/releases/download/mrdjjag-touchfx-test-0.8.0/mrdjjag-touchfx-test-0.8.0-icon.png",
+      "package": "https://github.com/meow3040/az-touchfx-test/releases/download/mrdjjag-touchfx-test-0.8.0/mrdjjag-touchfx-test-0.8.0.azmod",
+      "sha256": "8ed37eb24e88cfde561768b6c30d25b407f023a9167ea0580b1c67ce24c130c5",
+      "size": 107879,
+      "firmware": [
+        "ep147-9e9454e357389ece"
+      ],
+      "hooks": false,
+      "source": "https://github.com/meow3040/az-touchfx-test",
+      "updated": "2026-10-27",
+      "category": "audio",
+      "license": "GPL-3.0-only",
+      "min_core": "1.2.3",
+      "description": "Custom-build beta for XDJ-AZ. Requires matching customised azmod.so and azstem.so; the .azmod alone is not a complete installation. STEMS Touch FX requires tracks separated using Kyle's AZ-MODS Mod Manager, with STEMS enabled on the selected deck. Sampler uses its own samples. See the source repository for firmware compatibility, build and developer-mode installation requirements.",
+      "beta": true
+    }
+  ]
 }
