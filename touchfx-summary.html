@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Touch FX — סיכום הפרויקט ומצב ההתקנה</title>
+  <style>
+    :root{--ink:#142c33;--muted:#596d72;--paper:#f3f5f1;--line:#d8e1db;--green:#16664d;--amber:#885000}
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;background:var(--paper);color:var(--ink);font:17px/1.75 "Segoe UI",Arial,sans-serif}
+    a{color:#12654f;text-underline-offset:4px;overflow-wrap:anywhere}
+    a:hover{text-decoration-thickness:2px}
+    a:focus-visible,summary:focus-visible{outline:3px solid #b16a17;outline-offset:5px}
+    code,.ltr{direction:ltr;unicode-bidi:isolate;display:inline-block}
+    code{font:0.87em/1.6 Consolas,"Courier New",monospace;background:#eaf0ec;padding:1px 6px;border-radius:4px;overflow-wrap:anywhere;max-width:100%}
+    .wrap{width:min(1060px,calc(100% - 48px));margin:auto}
+    header{background:#142c33;color:#fff;border-bottom:6px solid #b8d4ad;padding:42px 0 38px}
+    .masthead{display:flex;justify-content:space-between;gap:16px;font-size:13px;letter-spacing:.03em;color:#c7d9d4}
+    h1{font-size:clamp(34px,6vw,62px);line-height:1.13;margin:25px 0 16px;font-weight:700;letter-spacing:-1.5px}
+    header p{max-width:740px;color:#e1eae6;font-size:20px;margin:0}
+    .version{font-size:14px;border:1px solid #5f7c7b;padding:3px 12px;border-radius:30px;white-space:nowrap}
+    nav{display:flex;gap:24px;flex-wrap:wrap;padding:18px 0;border-bottom:1px solid var(--line);font-size:14px}
+    main{padding:30px 0 48px}
+    .overview{display:grid;grid-template-columns:1.25fr 1fr;gap:20px;align-items:stretch}
+    .card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:25px}
+    h2{font-size:25px;line-height:1.35;letter-spacing:-.3px;margin:0 0 18px}
+    h3{font-size:18px;margin:0 0 8px}
+    p{margin:0 0 14px}
+    p:last-child{margin-bottom:0}
+    .eyebrow{font-size:12px;font-weight:700;letter-spacing:.04em;color:var(--muted);margin-bottom:10px}
+    .status{font-size:13px;font-weight:600;display:inline-block;padding:3px 10px;border-radius:20px;margin-bottom:12px}
+    .ok{color:var(--green);background:#e9f4ec}
+    .open{color:var(--amber);background:#fff0d4}
+    .lead-status{font-size:23px;line-height:1.5;font-weight:650}
+    .note{background:#fff6e6;border-right:4px solid #c88e36;padding:16px 18px;margin-top:20px;border-radius:6px;font-size:15px}
+    section{scroll-margin-top:24px;margin-top:36px}
+    section.overview{margin-top:0}
+    .muted{color:var(--muted);font-size:15px}
+    ul,ol{padding-right:23px;margin:12px 0 0}
+    li{padding-right:4px;margin:5px 0}
+    .steps{list-style:none;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:18px;counter-reset:step}
+    .steps li{padding:21px;background:white;border:1px solid var(--line);border-radius:10px;margin:0;counter-increment:step}
+    .steps li::before{content:"0" counter(step);display:block;color:#58776b;font-size:13px;font-weight:700;margin-bottom:12px}
+    .steps p{font-size:15px;color:var(--muted)}
+    .error-layout{display:grid;grid-template-columns:1.35fr 1fr;gap:28px}
+    .error-text{display:block;background:#19323a;color:#f6e6bf;padding:15px 18px;margin:0 0 18px;direction:ltr;text-align:left;border-radius:7px;font:15px/1.6 Consolas,monospace;overflow-wrap:anywhere}
+    .comparison{border-right:1px solid var(--line);padding-right:25px}
+    .bar-label{display:flex;justify-content:space-between;gap:16px;font-size:14px;margin-bottom:7px}
+    .bar{height:12px;background:#edf1ee;border-radius:3px;overflow:hidden;margin-bottom:23px}
+    .bar span{display:block;height:100%;background:#739a88}
+    .bar .requested{width:100%;background:#bd8a42}
+    .bar .limit{width:88.8889%}
+    .table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:white}
+    table{width:100%;border-collapse:collapse;text-align:right;font-size:15px}
+    caption{text-align:right;padding:17px 20px;font-weight:600;background:#eaf0e9}
+    th,td{padding:16px 20px;border-bottom:1px solid var(--line);vertical-align:top}
+    th{font-size:13px;color:var(--muted);font-weight:600}
+    tr:last-child td{border-bottom:0}
+    .table-wrap code{white-space:nowrap}
+    .checks{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+    .checks ul{font-size:15px}
+    .next{background:#e7eee7;border-color:#c9d8cb}
+    details{border-top:1px solid var(--line);margin-top:22px;padding-top:16px}
+    summary{cursor:pointer;font-weight:600;font-size:15px}
+    details p{margin-top:12px;font-size:14px}
+    .links{display:grid;grid-template-columns:1fr 1fr;gap:10px 24px;list-style:none;padding:0;font-size:15px}
+    footer{border-top:1px solid var(--line);padding:22px 0 30px;color:var(--muted);font-size:13px}
+    @media(max-width:700px){.wrap{width:calc(100% - 32px)}header{padding:28px 0}.masthead{align-items:center}header p{font-size:17px}.overview,.error-layout,.steps,.checks,.links{grid-template-columns:1fr}.card{padding:21px}.comparison{border-right:0;border-top:1px solid var(--line);padding:20px 0 0}.table-wrap th,.table-wrap td{padding:12px}nav{gap:15px}h2{font-size:22px}}
+    @media print{body{background:white;font-size:11pt}.wrap{width:100%}header{background:white;color:var(--ink);padding:0 0 20px}header p,.masthead{color:var(--ink)}h1{font-size:32pt}.version{border-color:var(--line)}nav{display:none}main{padding:20px 0}.card,.steps li{break-inside:avoid}.card{padding:16px}section{margin-top:24px}a{color:var(--ink)}.note{background:white}.error-text{background:#eee;color:#111}.links{grid-template-columns:1fr 1fr}footer{padding-bottom:0}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <div class="masthead"><span>סיכום פרויקט · 27 באוקטובר 2026</span><span class="version" dir="ltr">v0.8.0 · BETA</span></div>
+      <h1><span dir="ltr">Touch FX</span><br>מצב הפרויקט וההתקנה</h1>
+      <p>פאנל אפקטים במגע ל־XDJ-AZ. הקוד וחבילת הפאנל פורסמו ב־GitHub; ההפעלה בסביבה שלך עדיין נכשלת ודורשת בירור תאימות.</p>
+    </div>
+  </header>
+  <div class="wrap">
+    <nav aria-label="ניווט בסיכום">
+      <a href="#overview">תמונת מצב</a><a href="#published">מה פורסם</a><a href="#error">השגיאה</a><a href="#requirements">דרישות</a><a href="#next">המשך טיפול</a>
+    </nav>
+    <main>
+      <section class="overview" id="overview" aria-label="תמונת מצב">
+        <div class="card">
+          <div class="eyebrow">מה הפרויקט עושה</div>
+          <h2>שליטה באפקטים ממסך הנגן</h2>
+          <p>Touch FX מוסיף שליטת מגע באפקטים של STEMS וב־Sampler / Drum Roll, מעקב אחר המיקסר וזיכרון נפרד לכל דק.</p>
+          <ul>
+            <li>אפקטים: ECHO, LFO, LFO ECHO, GATE, ROLL ו־ECHO ROLL.</li>
+            <li>התאמת חלוקות קצב ל־BPM, ומצב LATCH לשימור האפקט.</li>
+            <li>תצוגות צבע, ללא צבע ושקיפות; התאמה לפריסות דקים שונות.</li>
+          </ul>
+          <p class="muted" style="margin-top:16px">הפרויקט נכתב בידי mrdjjag, על בסיס AZ-MODS וה־SDK של Kyle Hosman. רישיון: GPL-3.0-only.</p>
+        </div>
+        <div class="card">
+          <div class="eyebrow">מצב נוכחי</div>
+          <span class="status ok">הפרסום וההורדה אומתו</span>
+          <p class="lead-status">יש מוד ברשימה.<br>ההפעלה עדיין לא הושלמה.</p>
+          <p>בריפו <a href="https://github.com/meow3040/az-touchfx-test"><bdi>meow3040/az-touchfx-test</bdi></a> פורסמה חבילת <strong>Touch FX (Custom Core) 0.8.0</strong> ונוספה רשומת Browse תקינה.</p>
+          <div class="note"><strong>חבילת הפאנל דורשת ליבה ואודיו מותאמים.</strong> היא אינה מתקינה את <code>azmod.so</code> ואת <code>azstem.so</code>, ואינה תומכת בליבת AZ-MODS הרגילה.</div>
+        </div>
+      </section>
+
+      <section id="published" aria-labelledby="published-title">
+        <h2 id="published-title">מה הושלם</h2>
+        <ol class="steps">
+          <li><h3>העלאת המקור</h3><p>קובצי הפרויקט הועלו לריפו הנפרד בחשבון meow3040, לצד הוראות בנייה, התקנה ושחזור.</p></li>
+          <li><h3>תיקון רשימת המודים</h3><p>נוסף <code>azmods-repo.json</code> לפתרון שגיאת 404. הרשימה שהייתה ריקה כוללת כעת את המוד.</p></li>
+          <li><h3>פרסום חבילת בטא</h3><p>נבנתה ופורסמה חבילת <code>.azmod</code>. ההורדה הציבורית, הגודל וחתימת SHA-256 נבדקו בהצלחה.</p></li>
+        </ol>
+      </section>
+
+      <section class="card" id="error" aria-labelledby="error-title">
+        <span class="status open">פתוח · נדרש אימות מהסביבה שלך</span>
+        <h2 id="error-title">מדוע מופיע קוד 2?</h2>
+        <div class="error-layout">
+          <div>
+            <samp class="error-text">Failed: Its init() returned 2</samp>
+            <p>בקוד של Touch FX, הערך <code>2</code> מוחזר כאשר רישום אחת משורות ההגדרות נכשל.</p>
+            <p><strong>הסיבה הסבירה היא מגבלת מספר ההגדרות:</strong> הפאנל רושם 18 שורות, בעוד הליבה הרגילה מאפשרת 16 שורות למוד. בקוד הליבה המותאמת קיימת חריגה מפורשת שמאפשרת 18 שורות ל־Touch FX.</p>
+            <p class="muted">זהו ממצא בקוד והסבר אפשרי לשגיאה שדווחה. טרם התקבלו לוג או פרטי גרסה מהסביבה שלך, ולכן הסיבה המדויקת שם עדיין לא אומתה. גם כשל אחר ברישום שורה יכול להחזיר אותו קוד.</p>
+          </div>
+          <div class="comparison" aria-label="השוואה: הפאנל דורש 18 שורות, הליבה הרגילה מאפשרת 16">
+            <div class="bar-label"><span>דרישת הפאנל</span><strong>18 שורות</strong></div>
+            <div class="bar" aria-hidden="true"><span class="requested"></span></div>
+            <div class="bar-label"><span>מגבלת הליבה הרגילה</span><strong>16 שורות</strong></div>
+            <div class="bar" aria-hidden="true"><span class="limit"></span></div>
+            <p class="muted">צמצום מספר ההגדרות לבדו לא יספק את ממשקי האודיו והשליטה הנוספים שהמוד דורש מהליבה המותאמת.</p>
+            <p class="muted"><a href="https://kyle-hosman.github.io/az-mods-sdk/API/">מגבלות ה־SDK</a> · <a href="https://github.com/meow3040/az-touchfx-test/blob/main/panel/panel-test.c#L526">אתחול הפאנל</a> · <a href="https://github.com/meow3040/az-touchfx-test/blob/main/core/src/azmod/azfeatures.c#L463">החריגה בליבה המותאמת</a></p>
+          </div>
+        </div>
+      </section>
+
+      <section id="requirements" aria-labelledby="requirements-title">
+        <h2 id="requirements-title">שלושת הרכיבים הנדרשים</h2>
+        <div class="table-wrap">
+          <table>
+            <caption>כל הרכיבים צריכים להתאים לאותה גרסת Touch FX</caption>
+            <thead><tr><th scope="col">רכיב</th><th scope="col">תפקיד</th><th scope="col">מצב הפרסום</th></tr></thead>
+            <tbody>
+              <tr><td><code>mrdjjag-touchfx-test.so</code></td><td>פאנל המגע וממשק המוד</td><td>כלול בחבילת <code>.azmod</code> שפורסמה</td></tr>
+              <tr><td><code>azmod.so</code></td><td>ליבה מותאמת עם ממשקי השליטה והרחבת מספר ההגדרות</td><td>קוד מקור זמין; קובץ בינארי אינו מצורף לפרסום</td></tr>
+              <tr><td><code>azstem.so</code></td><td>רכיב האודיו המותאם לאפקטים</td><td>קוד מקור זמין; קובץ בינארי אינו מצורף לפרסום</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="muted" style="margin-top:14px">תג הקושחה שנקבע בפרויקט: <code>ep147-9e9454e357389ece</code>. שימוש ב־STEMS דורש רצועות שהוכנו באמצעות Mod Manager של Kyle והפעלת STEMS בדק הנבחר.</p>
+      </section>
+
+      <section class="checks" aria-label="אימות ומגבלות">
+        <div class="card">
+          <span class="status ok">עבר</span>
+          <h2>מה נבדק</h2>
+          <ul>
+            <li>חמש תוכניות הבדיקה הקיימות של הפאנל.</li>
+            <li>בניית הפאנל ואימות הספרייה והחבילה באמצעות ה־SDK.</li>
+            <li>התאמת גודל ו־SHA-256 של החבילה להורדה הציבורית.</li>
+            <li>בנייה נפרדת של שלוש הספריות, עם חתימות זהות לאלו שתיעד המחבר המקורי.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <span class="status open">עדיין פתוח</span>
+          <h2>מה טרם אומת</h2>
+          <ul>
+            <li>גרסת AZ-MODS והקושחה המותקנות אצלך.</li>
+            <li>האם הרכיבים המותאמים כבר מותקנים ונטענים.</li>
+            <li>האם השגיאה מופיעה בנגן או באמולטור.</li>
+            <li>הפעלה תקינה בפועל על המכשיר שלך.</li>
+          </ul>
+          <p class="muted" style="margin-top:15px">בדיקות הבנייה אינן בדיקת חומרה. התקלה המדווחת עדיין לא תוקנה.</p>
+        </div>
+      </section>
+
+      <section class="card next" id="next" aria-labelledby="next-title">
+        <div class="eyebrow">הצעד הבא</div>
+        <h2 id="next-title">לזהות את הגרסה שנטענת בפועל</h2>
+        <p>להמשך האבחון נדרשים פרטי גרסת AZ-MODS והקושחה ממסך About, ציון אם מדובר במכשיר או באמולטור, והאם הוחלפו שני קובצי הליבה והאודיו בגרסאות Touch FX.</p>
+        <p>לאחר מכן אפשר לבדוק את לוג המוד ואת התאמת הספריות, ולקבוע אם נדרשת התקנת רכיבים תואמים או טיפול בכשל רישום אחר. הוראות ההתקנה המלאות נמצאות ב־<a href="https://github.com/meow3040/az-touchfx-test/blob/main/INSTALL.md">INSTALL.md</a>.</p>
+        <details>
+          <summary>מידע טכני לאבחון</summary>
+          <p>לוג המוד נמצא בנתיב <code>/tmp/azmod-community/mrdjjag-touchfx-test.log</code>. הוא עשוי לכלול את שם השורה שנדחתה ואת הסיבה. תוכן <code>/tmp</code> נמחק בכיבוי.</p>
+          <p>פקודת קריאה בלבד, למי שכבר מחובר לסביבת הנגן דרך SSH:<br><code>cat /tmp/azmod-community/mrdjjag-touchfx-test.log</code></p>
+          <p>הסבר הלוגים: <a href="https://kyle-hosman.github.io/az-mods-sdk/04-testing/">תיעוד הבדיקות הרשמי</a>. חתימות הספריות הצפויות: <a href="https://github.com/meow3040/az-touchfx-test/blob/main/VERIFICATION.json">VERIFICATION.json</a>.</p>
+        </details>
+      </section>
+
+      <section aria-labelledby="links-title">
+        <h2 id="links-title">קבצים וקישורים</h2>
+        <ul class="links">
+          <li><a href="https://github.com/meow3040/az-touchfx-test">ריפו הפרויקט ב־GitHub</a></li>
+          <li><a href="https://github.com/meow3040/az-touchfx-test/releases/tag/mrdjjag-touchfx-test-0.8.0">פרסום הבטא וחבילת הפאנל</a></li>
+          <li><a href="https://raw.githubusercontent.com/meow3040/az-touchfx-test/HEAD/azmods-repo.json">רשימת המודים הציבורית</a></li>
+          <li><a href="https://github.com/meow3040/az-touchfx-test/actions/runs/40495688609">תוצאות בניית החבילה ופרסומה</a></li>
+          <li><a href="https://github.com/meow3040/az-touchfx-test/actions/runs/40494970239">אימות בניית שלושת הרכיבים</a></li>
+          <li><a href="https://github.com/meow3040/az-touchfx-test/blob/main/BUILD.md">הוראות בנייה</a> · <a href="https://github.com/meow3040/az-touchfx-test/blob/main/RESTORE.md">הוראות שחזור</a></li>
+        </ul>
+      </section>
+    </main>
+    <footer>סיכום לפי הפעולות והבדיקות שתועדו בשיחה · 27.10.2026. הקובץ עצמאי ואפשר לפתוח אותו בדפדפן גם ללא חיבור לרשת; הקישורים החיצוניים דורשים חיבור. אפשר להדפיס או לשמור כ־PDF דרך הדפדפן.</footer>
+  </div>
+</body>
+</html>
